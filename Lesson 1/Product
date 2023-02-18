@@ -1,0 +1,56 @@
+class Product {
+    constructor(name, price, quantity, description) {
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+        this.description = description;
+    }
+    static filter(queryString, products) {
+        const queries = queryString.split("&");
+        const result = [];
+
+        products.forEach(product => {
+            let match = true;
+            queries.forEach(query => {
+                let [field, operator, value] = query.split("-");
+                if (value === undefined) {
+                    value = operator.replace(/<=|>=|=/g, "");
+                    operator = operator.replace(/[^<>=]+/g, "");
+                }
+                if (operator === "contains" && !product[field].includes(value)) {
+                    match = false;
+                } else if (operator === "starts" && !product[field].startsWith(value)) {
+                    match = false;
+                } else if (operator === "ends" && !product[field].endsWith(value)) {
+                    match = false;
+                } else if (operator === "<" && !(product[field] < parseInt(value))) {
+                    match = false;
+                } else if (operator === ">" && !(product[field] > parseInt(value))) {
+                    match = false;
+                } else if (operator === "<=" && !(product[field] <= parseInt(value))) {
+                    match = false;
+                } else if (operator === ">=" && !(product[field] >= parseInt(value))) {
+                    match = false;
+                } else if (operator === "=" && !(product[field] === parseInt(value))) {
+                    match = false;
+                }
+            });
+            if (match) {
+                result.push(product);
+            }
+        });
+        return result;
+    }
+}
+const products = [
+    new Product("phone", 10000, 20, "The best phone ever"),
+    new Product("laptop", 150000, 20, "The best laptop for your job!"),
+    new Product("mouse", 500, 2000, "Little helper"),
+    new Product("keyboard", 2000, 600, "The best keyboard for kids"),
+    new Product("monitor", 10000, 52, "Standard monitor"),
+    new Product("armchair", 9000, 15, "Comfortable armchair"),
+    new Product("chair", 1000, 250, "uncomfortable chair, but cheap"),
+];
+const queryString = "name-contains-phone&price-=10000&quantity->=20&description-starts-The";
+const result = Product.filter(queryString, products);
+console.log(result);
