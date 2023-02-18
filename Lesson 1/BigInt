@@ -1,0 +1,232 @@
+const BigInt = {
+    // Функция для получения максимальной длины чисел
+    getMaxLength(a, b) {
+        return Math.max(a.length, b.length);
+    },
+
+    // Функция для дополнения чисел нулями слева до максимальной длины
+    padNumber(num, maxLength) {
+        while (num.length < maxLength) {
+            num = "0" + num;
+        }
+
+        return num;
+    },
+
+    compare(a, b) {
+        let maxLength = this.getMaxLength(a, b);
+        a = this.padNumber(a, maxLength);
+        b = this.padNumber(b, maxLength);
+        for (let i = 0; i < a.length; i++) {
+            if (a[i] > b[i]) {
+                return 1;
+            } else if (b[i] > a[i]) {
+                return -1;
+            }
+        }
+        return 0;
+    },
+
+    add(a, b) {
+        if (a.charAt(0) === '-' ^ b.charAt(0) === '-')
+            if (a.charAt(0) === '-') {
+                a = a.substring(1);
+                return this.subtract(b, a);
+            } else {
+                b = b.substring(1);
+                return this.subtract(a, b);
+            }
+        let sign = '';
+        if (a.charAt(0) === '-') {
+            sign = '-';
+            a = a.substring(1);
+            b = b.substring(1);
+        }
+
+        let result = "";
+        let maxLength = this.getMaxLength(a, b);
+        let carry = 0;
+
+        a = this.padNumber(a, maxLength);
+        b = this.padNumber(b, maxLength);
+
+        for (let i = maxLength - 1; i >= 0; i--) {
+            let digitA = parseInt(a[i]);
+            let digitB = parseInt(b[i]);
+            let sum = digitA + digitB + carry;
+            if (sum > 9) {
+                carry = 1;
+                sum -= 10;
+            } else {
+                carry = 0;
+            }
+            result = sum.toString() + result;
+        }
+        if (carry) {
+            result = "1" + result;
+        }
+        result = result.replace(/^0+/, "0");
+        result = sign + result;
+
+        return result;
+    },
+
+    subtract(a, b) {
+        if (a.charAt(0) === '-' ^ b.charAt(0) === '-') {
+            if (a.charAt(0) === '-') {
+                b = '-' + b;
+            } else {
+                b = b.substring(1);
+            }
+            return this.add(a, b);
+        }
+        if (a.charAt(0) === '-') {
+            const temp = a.substring(1);
+            a = b.substring(1);
+            b = temp;
+        }
+        let sign = '';
+        if (this.compare(a, b) < 0) {
+            const temp = a;
+            a = b;
+            b = temp;
+            sign = '-';
+        }
+        let maxLength = this.getMaxLength(a, b);
+        a = this.padNumber(a, maxLength);
+        b = this.padNumber(b, maxLength);
+        let result = '';
+        let borrow = 0;
+        for (let i = maxLength - 1; i >= 0 ; i--) {
+            let digitA = parseInt(a[i]);
+            let digitB = parseInt(b[i]);
+            let difference = digitA - digitB - borrow;
+            if (difference < 0) {
+                difference += 10;
+                borrow = 1;
+            } else {
+                borrow = 0;
+            }
+            result = difference + result;
+        }
+        result = result.replace(/^0+/, "0");
+        result = sign + result;
+
+        return result;
+    },
+
+    multiple(a, b) {
+        let sign = '';
+        if (a.charAt(0) === '-' ^ b.charAt(0) === '-') {
+            sign = '-';
+            if (a.charAt(0) === '-')
+                a = a.substring(1);
+            else
+                b = b.substring(1);
+        }
+        if (a.charAt(0) === '-') {
+            a = a.substring(1);
+            b = b.substring(1);
+        }
+        let result = '0';
+        let i = b.length - 1;
+        while (i >= 0) {
+            let carry = 0;
+            let tempResult = '';
+            let j = a.length - 1;
+            while (j >= 0 || carry) {
+                const product = (+b[i] || 0) * (+a[j] || 0) + carry;
+                tempResult = (product % 10) + tempResult;
+                carry = Math.floor(product / 10);
+                j--;
+            }
+            tempResult = tempResult + '0'.repeat(b.length - 1 - i);
+            result = this.add(result, tempResult);
+            i--;
+        }
+        if (this.compare(result,"0") !== 0)
+            result = sign + result;
+        result = result.replace(/^0+/, "0");
+
+        return result;
+    },
+
+    divide(a, b) {
+        if (b === '0') {
+            return NaN;
+        }
+        let sign = '';
+        if (a.charAt(0) === '-' ^ b.charAt(0) === '-') {
+            sign = '-';
+            if (a.charAt(0) === '-')
+                a = a.substring(1);
+            else
+                b = b.substring(1);
+        }
+        if (a.charAt(0) === '-') {
+            a = a.substring(1);
+            b = b.substring(1);
+        }
+        if (a === '0' || this.compare(a, b) < 0) {
+            return '0';
+        }
+        let quotient = '';
+        let remainder = '';
+        let i = 0;
+        while (this.compare(remainder, b) < 0 && i < a.length) {
+            remainder += a[i];
+            i++;
+        }
+        while (i <= a.length) {
+            let digit = 0;
+            while (this.compare(remainder, b) >= 0) {
+                remainder = this.subtract(remainder, b);
+                digit++;
+            }
+            quotient += digit.toString();
+            if (i < a.length) {
+                remainder += a[i];
+            }
+            i++;
+        }
+        quotient = quotient.replace(/^0+/, '');
+        quotient = sign + quotient;
+
+        return quotient;
+    }
+}
+console.log("Сложение ++++++++++++++++++");
+console.log(BigInt.add("10", "20"));
+console.log(BigInt.add("-10", "20"));
+console.log(BigInt.add("10", "-20"));
+console.log(BigInt.add("-10", "-20"));
+console.log(BigInt.add("-100", "100"));
+
+console.log("Вычитание ------------------");
+console.log(BigInt.subtract("10", "20"));
+console.log(BigInt.subtract("-10", "20"));
+console.log(BigInt.subtract("10", "-20"));
+console.log(BigInt.subtract("-10", "-20"));
+console.log(BigInt.subtract("-100", "-100"));
+
+
+console.log("Умножение ******************");
+console.log(BigInt.multiple("10", "20"));
+console.log(BigInt.multiple("-10", "20"));
+console.log(BigInt.multiple("10", "-20"));
+console.log(BigInt.multiple("-10", "-20"));
+console.log(BigInt.multiple("-10", "0"));
+console.log(BigInt.multiple("0", "-10"));
+
+console.log("Деление /////////////////");
+console.log(BigInt.divide("100", "20"));
+console.log(BigInt.divide("-100", "20"));
+console.log(BigInt.divide("100", "-20"));
+console.log(BigInt.divide("-100", "-20"));
+console.log(BigInt.divide("0", "20"));
+console.log(BigInt.divide("0", "-20"));
+console.log(BigInt.divide("100", "0"));
+console.log(BigInt.divide("10", "200"));
+console.log(BigInt.divide("-10", "200"));
+console.log(BigInt.divide("-200", "200"));
+console.log(BigInt.divide("200", "-200"));
