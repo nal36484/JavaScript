@@ -1,0 +1,66 @@
+const StringConverter = {
+     // Функция преобразования строки к нижнему регистру, начинающейся с заглавной буквы
+     lowerFirst(str)
+{
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+},
+    // Функция расставляющая пробелы в строке правильно
+    fixSpaces(str) {
+    str = str.trim();
+    // Заменяем подряд идущие пробелы на один пробел
+    str = str.replace(/\s+/g, " ");
+    // Добавляем пробел после знаков препинания
+    str = str.replace(/(\p{P})(\p{L})/gu, "$1 $2");
+    // Удаляем пробел перед знаками препинания
+    str = str.replace(/\s+(\p{P})/gu, "$1");
+    return str;
+},
+    // Функция подсчиывающая количество слов в строке
+    countWords(str) {
+    str = str.trim();
+    const words = str.split(/\s+/);
+    return words.length;
+},
+    // Функция подсчитывающая количество вхождений каждого слова в строке
+    countUniqueWords(str) {
+    const cleanStr = str.replace(/[^'\p{L}\s]/gu, '').toLowerCase();
+    const words = cleanStr.split(/\s+/);
+
+    const countMap = new Map();
+    words.forEach(word => {
+        const count = countMap.get(word) || 0;
+        countMap.set(word, count + 1);
+    });
+    const result = [];
+    countMap.forEach((count, word) => {
+        if (word !== '') {
+            let cur = count % 100;
+            if (cur > 21)
+                cur %= 10;
+            switch (cur) {
+                case 2:
+                case 3:
+                case 4:
+                    result.push(`${word} - ${count} разa`);
+                    break;
+                default:
+                    result.push(`${word} - ${count} раз`);
+            }
+        }
+    });
+    return result;
+}
+
+}
+
+console.log(StringConverter.lowerFirst("Absghcd")); // "Abscd"
+console.log(StringConverter.lowerFirst("fOOBAR")); // "Foobar"
+console.log(StringConverter.lowerFirst("BaZZEegh")); // "Baz"
+
+console.log(StringConverter.fixSpaces("Вот пример строки, в которой     используются знаки препинания.После знаков должны стоять пробелы , а перед знаками их быть не должно .    Если есть лишние подряд идущие пробелы, они должны быть устранены."));
+
+console.log(StringConverter.countWords("Привет, мир!"));
+console.log(StringConverter.countWords("Как вы себя чувствуете сегодня?"));
+console.log(StringConverter.countWords("  Маленький мальчик полез на дерево   и спрыгнул с   него. "));
+
+console.log(StringConverter.countUniqueWords("Текст, в. !котором слово! 7 2-2 текст несколько раз встречается и слово тоже текст текст"));
