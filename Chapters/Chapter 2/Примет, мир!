@@ -1,0 +1,32 @@
+Вызвать alert
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+    alert("Я JavaScript!");
+</script>
+</body>
+</html>
+
+Покажите сообщение с помощью внешнего скрипта
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script src="Test.js">
+
+</script>
+</body>
+</html>
+
+Test.js
+alert("Я JavaScript!");
