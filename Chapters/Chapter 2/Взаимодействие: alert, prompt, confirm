@@ -1,0 +1,17 @@
+Создайте страницу, которая спрашивает имя у пользователя и выводит его.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+    'use strict';
+
+    let name = prompt("Ваше имя?", "noName");
+    alert(name);
+</script>
+</body>
+</html>
